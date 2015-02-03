@@ -24,10 +24,10 @@ MipsInstruction::MipsInstruction(){
 	    index_ROB=-1;
 	    index_BTB=-1;
 
-		ifClock=0;//IF 时间
-	    isClock=0;//Issue 时间	
-	    exeClock=0;//execute时间
-	    wbClock=0;//write back时间
+		ifClock=0;//IF Time
+	    isClock=0;//Issue Time
+	    exeClock=0;//Execute Time
+	    wbClock=0;//Write Back Time
 
 }
 
@@ -56,10 +56,10 @@ MipsInstruction::MipsInstruction(int v,int PC,string s){
 	    index_ROB=-1; 
 		index_BTB=-1;
 
-		ifClock=0;//IF 时间
-	    isClock=0;//Issue 时间	
-	    exeClock=0;//execute时间
-	    wbClock=0;//write back时间
+		ifClock=0;//IF Time
+	    isClock=0;//Issue Time
+	    exeClock=0;//Execute Time
+	    wbClock=0;//Write Back Time
 
 		v=big_endian2little_endian(v);
 		bitset<32> chain(v);
@@ -87,10 +87,10 @@ MipsInstruction::MipsInstruction(int v,int PC,string s){
 
 	    ImorOffset=0;
 		
-		ifClock=0;//IF 时间
-	    isClock=0;//Issue 时间	
-	    exeClock=0;//execute时间
-	    wbClock=0;//write back时间
+		ifClock=0;//IF Time
+	    isClock=0;//Issue Time
+	    exeClock=0;//Execute Time
+	    wbClock=0;//Write Back Time
 
 		v=big_endian2little_endian(v);
 		bitset<32> chain(v);
@@ -114,10 +114,10 @@ MipsInstruction::MipsInstruction(const MipsInstruction& theIns){
 	RegSFlag=false;
 	RegTFlag=false;
 	Address=theIns.Address;
-	ifClock=theIns.ifClock;//IF 时间
-	isClock=theIns.isClock;//Issue 时间	
-	exeClock=theIns.exeClock;//execute时间
-	wbClock=theIns.wbClock;//write back时间
+	ifClock=theIns.ifClock;//IF Time
+	isClock=theIns.isClock;//Issue Time
+	exeClock=theIns.exeClock;//Execute Time
+	wbClock=theIns.wbClock;//Write Back Time
 	
 	predictedAddress=theIns.predictedAddress;
 	tarAddress=theIns.tarAddress;
@@ -582,16 +582,16 @@ int MipsInstruction::getData(){
 }
 int MipsInstruction::getifClock(){
 	return ifClock;
-}//IF 时间
+}//IF Time
 int MipsInstruction::getisClock(){
 	return isClock;
-}//Issue 时间	
+}//Issue Time
 int MipsInstruction::getexeClock(){
 	return exeClock;
-}//execute时间
+}//Execute Time
 int MipsInstruction::getwbClock(){
 	return wbClock;
-}//write back时间
+}//Write Back Time
 
 //set function
 void MipsInstruction::setindex_RS(int irs){
@@ -627,13 +627,13 @@ void MipsInstruction::setImorOffset(int temp_Im){
 }
 void MipsInstruction::setifClock(int ifc){
 	ifClock=ifc;
-}//IF 时间
+}//IF Time
 void MipsInstruction::setisClock(int isc){
 	isClock=isc;
-}//Issue 时间	
+}//Issue Time
 void MipsInstruction::setexeClock(int exec){
 	exeClock=exec;
-}//execute时间
+}//Execute Time
 void MipsInstruction::setwbClock(int wbc){
 	wbClock=wbc;
-}//write back时间
+}//Write Back Time

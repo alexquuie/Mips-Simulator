@@ -75,19 +75,19 @@ void checkRSDependence(map<int,ReservationNode> &RS,int Dest,int result){//Using
 					}
 					
 		
-		//If it is load					
+		//如果是load					
 		 if(RS[index].getInstruction().checkLoad()==true&&RS[index].checknextStep()=="issue"){
 			 if(RS[index].getQj()==0)
 			 {RS[index].setnextStep("execute");}
-		 }//End load 
+		 }//load 结束
 					
-		 //If it is Store
+		 //如果是Store
 		 if(RS[index].getInstruction().checkStore()==true&&RS[index].checknextStep()=="issue"){
 			 if(RS[index].getQj()==0)
 			 {RS[index].setnextStep("execute");}
 		 }			
 
-	}// End Store
+	}
 }
 
 string systemoutput(int clock,deque<MipsInstruction> insQueue,map<int,ReservationNode> RS,
@@ -180,18 +180,18 @@ void main(int argc, char *argv[])
     int binaryCode  = 0;
 	
 	//Initialization
-	map<int,MipsInstruction> Mem;//Only In No out
+	map<int,MipsInstruction> Mem;//只进不出
 	deque<MipsInstruction> insQueue;//FIFO
 
 	map<int,ReorderNode>ReorderBuffer; //FIFO	
 	BranchTargetBuffer newBTB(SizeofBranchTargetBuffer);//fully associative
-	//////////
+	//////////不用这个结构
 	RegisterStatus Registers(numofRegisters); //fully associative
 
 	map<int,ReservationNode>ReservationStation; //FIFO
 
-	//The indexs of records in the Instruction Queue are static, We can use it as global index
-	//Or should use PC as global index
+	//大家在Instruction Queue 里面的顺序是不变的，因此可以作为唯一指标
+	//应该是PC作为唯一指标
 
 	//Read from the binary file
 	int InstructionAdd=600;
@@ -238,7 +238,7 @@ void main(int argc, char *argv[])
 					int b=mips_tmp.getpredictedAddress();
 					if(newBTB.gettrueTar(i)!=mips_tmp.getpredictedAddress()){
 					mis_predicted_index=newBTB.getrs_Index(i);
-					for(int roll_index=newBTB.getrs_Index(i)+1;roll_index<clock;roll_index++){					
+					for(int roll_index=newBTB.getrs_Index(i)+1;roll_index<clock;roll_index++){//到底是clock还是clock--？													
 						ReorderBuffer.erase(roll_index);
 						ReservationStation.erase(roll_index);
 					}	
@@ -277,7 +277,8 @@ void main(int argc, char *argv[])
 			if(mips_tmp.checkStore()==true){
                     if(ReservationStation[r].getQj()==0)
 						//&&checkBefore(ReservationStation,r))
-						//Store at Queue Head					{
+						//Store at Queue Head??这个怎么检查？？？？？？
+					{
 						//Excute;
 						int h=ReservationStation[r].getInstruction().getindex_ROB();
 						int storeA=ReservationStation[r].getVj()
@@ -324,7 +325,7 @@ void main(int argc, char *argv[])
 					}
 				}
 			}
-			//Branch
+			//Branch语句
 			if(mips_tmp.checkBranch()||mips_tmp.checkJump()){
 				ReservationStation[r].ALUExecute(Mem);
 				
@@ -368,7 +369,8 @@ void main(int argc, char *argv[])
 
 		}
 		//}
-	}///End Execute	
+	}///Execute阶段结束
+	
 	//// Write Back
 		for (map<int,ReservationNode>::iterator it_wb=ReservationStation.begin();it_wb!=ReservationStation.end(); ++it_wb){
 			MipsInstruction mips_tmp=it_wb->second.getInstruction();
@@ -383,7 +385,7 @@ void main(int argc, char *argv[])
 					ReservationStation[r].setBusy(false);
 					int result=ReservationStation[r].getResult();
 					
-					checkRSDependence(ReservationStation,b,result);///Update all the results!!!!!!!!
+					checkRSDependence(ReservationStation,b,result);///更新所有的result!!!!!!!!
 					
 					ReorderBuffer[b].setValue(result);//
 					ReorderBuffer[b].setReady(true);   
@@ -396,10 +398,10 @@ void main(int argc, char *argv[])
 					if(ReservationStation[r].getQk()==0)//Execution done at r
 					{
 						int result=ReservationStation[r].getVk(); 
-						int h=ReservationStation[r].getDest();//check if Dest is the index of ReorderBuffer？
+						int h=ReservationStation[r].getDest();///////////////////检查一下Dest是ReorderBuffer的index吗？
 						ReorderBuffer[h].setValue( result);
 						ReservationStation[r].setBusy(false);
-						checkRSDependence(ReservationStation,h,result);//update all the results
+						checkRSDependence(ReservationStation,h,result);///更新所有的result!!!!!!!!
 				        ReorderBuffer[h].setReady(true);   
 						ReservationStation[r].setnextStep("commit");
 						//set clock
@@ -415,12 +417,14 @@ void main(int argc, char *argv[])
 
 
 		////Issue
+		////暂时变量
+		////SLTI, ADDI, ADDIU, SLL, SRL待解决//已经解决
 		//if there is an empty Reservation Station(10 ALU RS including Load & Store & Branch & Jump Instruction)
 
 		if(insQueue.begin()!=insQueue.end()){		
 			if(clock>=insQueue.front().getifClock()+1){
 				if(ReorderBuffer.size()<SizeofReorderBuffer && ReservationStation.size()<SizeofReservationStation){	
-					//Actually there is no instructions in the BTB but using BTB to output target PC, fetch	 instructions from IQ					
+					///到底应该从BTB还是IQ里面取指令呢？利用BTB预测，实际指令都从IQ里面取			   						
 					insQueue.front().setindex_ROB(clock);
 					insQueue.front().setindex_RS(clock);
 					if(insQueue.front().checkBranch()||insQueue.front().checkJump()){
@@ -432,7 +436,7 @@ void main(int argc, char *argv[])
 					map<int,ReservationNode>::iterator it=--ReservationStation.end();
 					it->second.setnextStep("issue");
 					insQueue.pop_front();
-					//IF & ISSUE//<Map> will count size automatically
+					//IF ISSUE交接结束//<Map>会自动计量size
 				}
 			}
 			
@@ -466,9 +470,10 @@ void main(int argc, char *argv[])
 					ReservationStation[r].setBusy(true);
 					ReservationStation[r].setDest(b);
 					ReorderBuffer[b].setReady(false);
-					//End Operand 1
+					//操作数1结束
 
-					if(tempMis.getRegTFlag()&&tempMis.checkLoad()==false){//Operand 2
+					if(tempMis.getRegTFlag()&&tempMis.checkLoad()==false){///??
+						//操作数2
 						if(Registers.getBusy(rt)){
 							int h=Registers.getReorderNo(rt);
 							if(ReorderBuffer[h].checkReady()){
@@ -477,27 +482,32 @@ void main(int argc, char *argv[])
 							else{ReservationStation[r].setQk(h);}
 						}else{ReservationStation[r].setVk( Registers.getTemporalValue(rt));
 						ReservationStation[r].setQk(0);}
-					}//End Operand 2
-					//if target register exists   
+					}
+					
+					//操作数2结束
+					//如果存在目标寄存器   
 					if(tempMis.getRegDFlag()&&tempMis.checkLoad()==false&&tempMis.checkStore()==false){
 						Registers.setReorderNo(b,rd);
 						Registers.setBusy(true,rd);
 						ReorderBuffer[b].setDestination(rd);
-					}//End Target register
-
-					//If it is load
+					}
+					
+					//目标寄存器结束  
+					//如果是load
+					
 					if(tempMis.checkLoad()==true){
 						ReservationStation[r].setA(ReservationStation[r].getInstruction().getImorOffset());
 						Registers.setReorderNo(b,rt);
 						Registers.setBusy(true,rt);
 						ReorderBuffer[b].setDestination(rt);
-					}//End load		
-			
-					//If it is Store
+					}//load 结束
+					
+					//如果是Store
 					if(tempMis.checkStore()==true){
 						ReservationStation[r].setA(ReservationStation[r].getInstruction().getImorOffset());
 					}
 
+					//改下一步
 					if(tempMis.checkLoad()==false&&tempMis.checkStore()==false){
 						if(tempMis.getRegSFlag()){
 							if(tempMis.getRegTFlag()){
@@ -510,14 +520,14 @@ void main(int argc, char *argv[])
 						}else{ReservationStation[r].setnextStep("execute");}
 					}
 					
-					//If it is load
+					//如果是load
 					
 					if(tempMis.checkLoad()==true){
 						if(ReservationStation[r].getQj()==0)
 						{ReservationStation[r].setnextStep("execute");}
-					}//End load 
+					}//load 结束
 					
-					//If it is Store
+					//如果是Store
 					if(tempMis.checkStore()==true){
 						if(ReservationStation[r].getQj()==0)
 						{ReservationStation[r].setnextStep("execute");}
@@ -530,9 +540,9 @@ void main(int argc, char *argv[])
 				}
 			}
 }
-//End ISSUE
+//ISSUE 结束
 
-       //IF   Push each Instructions into Each Structure and record the indexs
+       //IF   把命令推进每一个储存器里都先记录Index
 if(breakFlag ==false){
      if(Mem[PC].checkBranch()||Mem[PC].checkJump()){
 		 Mem[PC].setindex_BTB(newBTB.insertBuffer(PC,Mem[PC].gettarAddress()));
@@ -555,7 +565,7 @@ if(breakFlag ==false){
 	 Mem[PC].setpredictedAddress(predicted_pc);
 	 insQueue.push_back(Mem[PC]);
 }
-	 //End IF 
+	 //IF 阶段结束
 			
 
 		//print
@@ -573,23 +583,22 @@ if(breakFlag ==false){
 				map<int,ReservationNode>::iterator RS_Head=ReservationStation.begin();
 
 				if(ROB_Head->second.checkReady()){				
-					//Divide instructions into different types
-
+					//还是要把指令分类来写，这几个指令FP operation没有问题，其他的就不行
 					if(ROB_Head->second.getInstruction().checkStore()){					
-						int d=ROB_Head->second.getDestination();//Some Instructions have no destination
+						int d=ROB_Head->second.getDestination();//有些指令没有终点怎么办
 						if(d>MemUB||d<MemLB){cerr<<"The Destination is out of range of data segment! Please check";exit;}
 						else{
 							Mem[d].setData(ROB_Head->second.getValue());
 						}
 					}else{
 						if(ROB_Head->second.getInstruction().getRegDFlag()){
-							int d=ROB_Head->second.getDestination();//Some Instructions have no destination
+							int d=ROB_Head->second.getDestination();//有些指令没有终点怎么办
 							Registers.setTemporalValue(ROB_Head->second.getValue(),d);
 							if(Registers.getReorderNo(d)==ROB_Head->first){			
 								Registers.setBusy(false,d);}		
 						}
 						if(ROB_Head->second.getInstruction().checkLoad()){
-							int d=ROB_Head->second.getDestination();//Some Instructions have no destination
+							int d=ROB_Head->second.getDestination();//有些指令没有终点怎么办
 							Registers.setTemporalValue(ROB_Head->second.getValue(),d);
 							if(Registers.getReorderNo(d)==ROB_Head->first){			
 								Registers.setBusy(false,d);}		
@@ -605,7 +614,7 @@ if(breakFlag ==false){
 			}
 		}
 
-		///End Pipline
+		///pipline结束
 		PC=predicted_pc;
 		clock++;
 }

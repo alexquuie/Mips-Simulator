@@ -38,17 +38,17 @@ public:
 	bool getRegTFlag();
 	//Add
 	int getAdd();
-	int getpredictedAddress();//Record predictedAddress
+	int getpredictedAddress();//预测目标地址
 	int gettarAddress();
-	//int gettrueTarget();//Record True Target Address
+	//int gettrueTarget();//正确目标地址
 	//
 	int getImorOffset();
 	int getData();
 	
-	int getifClock();//IF Time
-	int getisClock();//Issue Time
-	int getexeClock();//Execute Time
-	int getwbClock();//Write Back Time
+	int getifClock();//IF 时间
+	int getisClock();//Issue 时间	
+	int getexeClock();//execute时间
+	int getwbClock();//write back时间
 
 	//set Function
 	
@@ -57,17 +57,17 @@ public:
 	void setindex_ROB(int);
 	void setindex_BTB(int);
 
-	void setifClock(int);//IF Time
-	void setisClock(int);//Issue Time
-	void setexeClock(int);//Execute Time
-	void setwbClock(int);//Write Back Time
+	void setifClock(int);//IF 时间
+	void setisClock(int);//Issue 时间	
+	void setexeClock(int);//execute时间
+	void setwbClock(int);//write back时间
 
 	//void setBinaryCode();
 	void setData(int);
 	void setAdd(int);
-	void setpredictedAddress(int);//Record predictedAddress
-	void settarAddress(int); //set Target Address
-	//void settrueTarget(int);//True Target Address
+	void setpredictedAddress(int);//预测目标地址
+	void settarAddress(int); //目标地址
+	//void settrueTarget(int);//正确目标地址
 	void setImorOffset(int);
 
 private:
@@ -89,26 +89,25 @@ private:
 	bool jumpFlag;
 	bool loadFlag;
 	bool storeFlag;
-	int Address;//address of instructions
-	int predictedAddress;//Record predictedAddress
-	int tarAddress;//target address
-//	int trueTarget;//truetarget address
+	int Address;//指令地址
+	int predictedAddress;//预测目标地址
+	int tarAddress;//目标地址
+//	int trueTarget;//正确目标地址
 
+	int ImorOffset;//立即地址
+	int data;//当他为Data型的时候
+	int ifClock;//IF 时间
+	int isClock;//Issue 时间	
+	int exeClock;//execute时间
+	int wbClock;//write back时间
 
-	int ImorOffset;//Instant Address
-	int data;//If the Record is data type
-	int ifClock;//IF time
-	int isClock;//Issue time
-	int exeClock;//Execute time
-	int wbClock;//write back time
-
-	string operation;//operation
+	string operation;//操作
 	string opcode;
 	string rs;
 	string rt;
 	string rd;
 	string rh;
-      string special;
+    string special;
 	string Instruction;
 };
 #endif
